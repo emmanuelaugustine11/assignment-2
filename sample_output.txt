@@ -1,0 +1,20 @@
+ORGANISATIONAL HIERARCHY - LEVEL-ORDER TRAVERSAL
+Level 0: CEO
+Level 1: HR -> Finance -> IT
+Level 2: Development -> Testing
+Level 3: Frontend -> Backend
+(Arrows within a level indicate visit order, not reporting links.)
+
+Tree height: 3 edges (4 levels)
+
+Sorted departments: Backend, Development, Finance, Frontend, HR, IT, Testing
+CEO is a role, so it is excluded from the department index.
+
+SEARCH COMPARISONS
+Target        Result        Linear  Binary
+Backend       Found              1       3
+HR            Found              5       3
+Testing       Found              7       3
+Marketing     Not found          7       3
+
+One comparison means comparing the target with one list entry.
