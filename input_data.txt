@@ -1,0 +1,24 @@
+INPUT DATA: Organisational hierarchy question
+
+The supplied assignment data is built into build_hierarchy() in main.c.
+This file documents that input; the program does not read it from disk.
+Run hierarchy without typing interactive input.
+
+Root: CEO
+Parent -> Children (in given order):
+CEO -> HR, Finance, IT
+IT -> Development, Testing
+Development -> Frontend, Backend
+
+Leaf departments: HR, Finance, Testing, Frontend, Backend
+Nodes: 8
+Departments: 7 (CEO is a role and excluded from department searching)
+
+Search queries selected for comparison:
+1. Backend
+2. HR
+3. Testing
+4. Marketing (absent department)
+
+Both searches use the same case-insensitively sorted department array.
+One comparison means comparing a query with one department entry.

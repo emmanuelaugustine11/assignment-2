@@ -5,6 +5,22 @@
 Construct a company's organisational tree, display it using level-order
 traversal, compare Linear Search and Binary Search, and evaluate the structures.
 
+## Submission contents
+
+This project answers the organisational hierarchy question supplied for this assignment.
+
+| Required item | File or section |
+|---|---|
+| C source code | [main.c](main.c) |
+| Given input data and selected queries | [input_data.txt](input_data.txt) |
+| Executed output | [sample_output.txt](sample_output.txt) |
+| Intermediate trace tables | [trace_tables.md](trace_tables.md) |
+| Time and space complexity analysis | [Complexity](#complexity) below |
+| Performance comparison table | [Comparison](comparison_and_conclusion.md#observed-search-results) |
+| Justified final conclusion | [Final conclusion](comparison_and_conclusion.md#final-conclusion) |
+
+Repository designated for submission: https://github.com/emmanuelaugustine11/assignment-2
+
 ## Run the project
 
 Requires a C11 compiler (GCC, Clang or Microsoft Visual C). No external libraries are needed.
@@ -13,10 +29,17 @@ Requires a C11 compiler (GCC, Clang or Microsoft Visual C). No external librarie
 gcc -std=c11 -Wall -Wextra -Wpedantic main.c -o hierarchy
 ./hierarchy
 ./hierarchy --test
+./hierarchy --trace > trace_tables.md
 ```
 
 - `main.c`: tree construction, traversal, height calculation, both searches and self-tests.
 - `sample_output.txt`: output captured from an actual execution.
+
+The given hierarchy and four queries are built into the C program and documented
+in `input_data.txt`; no interactive input or input-file argument is required.
+The `--trace` option records the queue after each visit, each insertion-sort pass,
+and every comparison in both searches. Trace printing is diagnostic output and
+is excluded from the normal-operation complexity analysis.
 
 ## Part (a): Tree representation and construction
 
