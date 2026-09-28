@@ -7,20 +7,20 @@ traversal, compare Linear Search and Binary Search, and evaluate the structures.
 
 ## Run the project
 
-Requires Python 3.10 or newer. No additional packages are needed.
+Requires a C11 compiler (GCC, Clang or Microsoft Visual C). No external libraries are needed.
 
 ```sh
-python main.py
-python -m unittest -v
+gcc -std=c11 -Wall -Wextra -Wpedantic main.c -o hierarchy
+./hierarchy
+./hierarchy --test
 ```
 
-- `main.py`: tree construction, traversal, height calculation and both searches.
-- `test_main.py`: automated checks for relationships, traversal and searches.
+- `main.c`: tree construction, traversal, height calculation, both searches and self-tests.
 - `sample_output.txt`: output captured from an actual execution.
 
 ## Part (a): Tree representation and construction
 
-Use a **rooted general tree**. Each node stores a name and a list of children.
+Use a **rooted general tree**. Each C struct stores a name, an array of child pointers and a child count. This fixed example allows up to three children per node and stores eight nodes in a caller-owned array; no heap allocation is needed.
 A binary tree would not naturally represent the CEO's three direct reports.
 
 ```text
@@ -45,8 +45,7 @@ Backend. CEO is the root role; the other seven nodes are departments.
 3. Insert its children in their stored order.
 4. Repeat until the queue is empty.
 
-The implementation processes the queue's current length per level, preserving
-level boundaries. Python's `deque` provides constant-time removal from the front.
+The implementation uses an array-backed FIFO queue with head and tail indices, so enqueue and dequeue take constant time. It records depths alongside node pointers to preserve level boundaries. The queue has eight slots with a capacity check.
 
 Actual execution:
 
@@ -65,8 +64,7 @@ the specific manager-child relationships that a flat traversal cannot show.
 
 ## Part (b): Searchable representation and measured comparisons
 
-Extract departments from the tree into a Python list, excluding the CEO role,
-and sort alphabetically using `str.casefold`:
+Extract departments from the traversal into an array of string pointers, excluding the CEO role, and sort alphabetically using insertion sort. Sorting and searching use the same case-insensitive comparator for these English names:
 
 ```text
 Index:  0        1            2        3         4   5   6
@@ -81,11 +79,11 @@ and return the matching index or -1, together with their comparison count.
 
 **Counting convention:** one comparison means one list entry compared with the
 target. Binary Search counts one logical three-way comparison at each midpoint.
-These are entry comparisons, not counts of Python operators, individual character
+These are entry comparisons, not counts of C operators, individual character
 comparisons, or loop-condition checks. Sorting comparisons are preprocessing and
 are excluded from the per-search counts.
 
-Results from running `python main.py`:
+Results from running `./hierarchy`:
 
 | Target | Result | Linear comparisons | Binary comparisons |
 |---|---|---:|---:|
@@ -125,9 +123,9 @@ The table treats a name comparison as constant time.
 | Operation | Time | Additional space |
 |---|---|---|
 | Construct a general hierarchy of N nodes | O(N) | O(N) for stored tree |
-| Level-order traversal | O(N) | O(w) queue, plus O(N) returned levels |
+| Level-order traversal | O(N) | O(N) allocated queue and depth arrays |
 | Calculate height | O(N) | O(h + 1) recursive stack |
-| Extract and sort department index | O(N + D log D) worst case | O(N + D), including collected levels and sorting |
+| Extract and sort department index | O(N + D^2) worst case | O(N + D) traversal and index storage; sorting uses O(1) extra |
 | Linear Search, best case | O(1) | O(1) under fixed-length-name assumption |
 | Linear Search, average/worst case | O(D) | O(1) under fixed-length-name assumption |
 | Binary Search, best case | O(1) | O(1) under fixed-length-name assumption |
@@ -136,8 +134,7 @@ The table treats a name comparison as constant time.
 The construction function explicitly builds this fixed example; its work is
 constant for these exact eight nodes. O(N) describes extending the same approach
 to an arbitrary-sized hierarchy. Every traversal visits each node once, and height
-calculation examines every child subtree. The queue can briefly mix adjacent
-levels but its size remains O(w).
+calculation examines every child subtree. The live FIFO contents can mix adjacent levels and are O(w), but this implementation retains visited pointers and allocates O(N) queue storage. Insertion sort costs O(D^2) on average and in the worst case, and O(D) when already sorted; it is sufficient for seven names. All fixed capacities must be increased if the hierarchy grows, or replaced with dynamic storage.
 
 For successful Linear Search with equally likely targets, the average number of
 comparisons is (D + 1) / 2 = 4. An unsuccessful Linear Search checks all D = 7
@@ -145,14 +142,14 @@ entries. Binary Search examines at most floor(log2 D) + 1 = 3 entries for this
 nonempty list; an empty list requires zero comparisons.
 
 Names are strings: if their maximum length is L, case conversion and comparison
-can cost O(L) time and create O(L) temporary space per comparison. Thus more
+can cost O(L) time. The C comparator processes characters directly and uses O(1) additional space. Thus more
 precise worst-case search bounds are O(DL) and O(L log D), respectively. Sorting
 also has string processing costs. The usual DSA bounds above abstract those costs.
 
 ### Suitability and conclusion
 
 The general tree is suitable for organisational reporting because it directly
-represents a single manager per node, arbitrary numbers of direct reports, and
+represents a single manager per node, multiple direct reports, and
 clear reporting levels. It would need a graph representation for a matrix
 organisation where a department reports to multiple managers.
 
@@ -172,6 +169,14 @@ would require unique department IDs or a mapping to multiple nodes.
 
 ## Validation
 
-The program was executed and all four automated tests passed. Tests check the
-reporting links, exact level order, tree height, comparison counts, every department,
-case-insensitive matching, missing entries, an empty list and single-entry lists.
+The C program was compiled and executed using Tiny C Compiler 0.9.27 with `-Wall -Werror`; all C self-tests passed. The installed Microsoft compiler lacked standard headers, so a portable compiler was used for validation. The source uses standard C features compatible with the C11 build commands above. Execution output is saved in `sample_output.txt`. Run `hierarchy --test` to verify reporting links, exact level order, height, sorting, comparison counts, every department, case-insensitive matching, missing entries, empty arrays and single-entry arrays. Assertions must remain enabled (do not define `NDEBUG` when testing).
+
+### Windows build alternative
+
+From a Visual Studio Developer Command Prompt:
+
+```bat
+cl /nologo /std:c11 /W4 /WX main.c /Fe:hierarchy.exe
+hierarchy.exe
+hierarchy.exe --test
+```
